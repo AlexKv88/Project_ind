@@ -2,6 +2,10 @@
 #include <locale.h>
 #include <chrono>
 #include <iostream>
+#include <cilk/cilk_api.h>
+
+
+
 
 using namespace std;
 using namespace chrono;
@@ -20,21 +24,22 @@ int main()
 {
 	setlocale(LC_ALL, "Rus");
 
-	double a = -10, b = 0, c = 24, d = 16;
-
 	high_resolution_clock::time_point start, end;
 	start = high_resolution_clock::now(); //засекли время
-	high_level_analysis main_object(a, b, c, d);
+	__cilkrts_end_cilk();
+	__cilkrts_set_param("nworkers", "4");
+	high_level_analysis main_object(g_l0 *(-2), g_l0 * 0, g_l1_min * 3, g_l1_min * 2);
 
 	main_object.GetSolution();
 	end = high_resolution_clock::now();
 	duration<double> duration = (end - start);
 
+	cout << "Количество вычилителей: " << __cilkrts_get_nworkers() << endl;
 	cout << "Время исполнения кода: " << duration.count() << " секунд" << std::endl;
 
 	// Внимание! здесь необходимо определить пути до выходных файлов!
-	const char* out_files[3] = {	"solution.txt", "nsolution.txt", "boundary.txt" };
-	WriteResults( out_files );
+	const char* out_files[3] = { "solution.txt", "nsolution.txt", "boundary.txt" };
+	WriteResults(out_files);
 
 	system("pause");
 	return 0;
